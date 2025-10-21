@@ -1,15 +1,11 @@
-type HelloProps = {
-    name: string;
-    age: number;
-};
+import HelloProps from "./types/types.ts";
 
-function HelloComponent({name,age}: HelloProps) {
-return (
-    <div>
-        <h1>Hi! {name}, you are {age} years old</h1>
-    </div>
-    
-) 
+function HelloComponent({name, age} : HelloProps) { 
+	return (
+    <>
+      Hello, {name}, you are {age} years old!
+    </>
+  );
 }
 
-export default HelloComponent;
+export default HelloComponent
