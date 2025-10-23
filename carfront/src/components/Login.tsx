@@ -1,63 +1,78 @@
+import { ChangeEvent, useState } from "react";
 import axios from "axios";
-import { useState } from "react";
-import { Button, Stack, TextField } from "@mui/material";
+import { Button, TextField, Stack, Snackbar } from "@mui/material";
+import Carlist from "./Carlist";
 
 type User = {
     username: string;
     password: string;
-};
-
-function Login() {
-    const [user, setUser] = useState<User>({
-    username: "",
-    password: "",
-    });
-
-const [isAuthenticated, setAuth] = useState(false);
-
-const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-setUser({ ...user, [event.target.name]: event.target.value });
-};
-
-const handleLogin = () => {
-axios
-    .post(import.meta.env.VITE_API_URL + "logn", user, { headers: { 'Content-Type': 'application/json'},
-    })
-    .then((res) => {
-    const jwtToken = res.headers.authorization;  // 백슬래시 제거
-    if (jwtToken !== null) 
-        { sessionStorage.setItem("jwt", jwtToken);
-        setAuth(true); alert("Login Successful"); }
-    else{ 
-        alert("Login Failed"); 
     }
-    
-})
-    .catch((err) => {
-    console.error(err);
-    });
-};
 
-return (
-<Stack spacing={2} mt={2} alignItems="center">
-    <TextField
-        name="username"
-        label="Username"
-        value={user.username}
-        onChange={handleChange}
+    function Login() {
+    const [ user, setUser ] = useState<User>({
+    username: '',
+    password: ''
+    });
+    const [ isAuthenticated, setAuth ] = useState(false);
+    const [ open, setOpen ] = useState(false);
+
+    const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setUser({ ...user, [event.target.name]: event.target.value});
+    }
+
+    const handleLogin = () => {
+    // 일부러 템플릿 리터럴(template literal)로 안썼습니다.
+    axios.post(import.meta.env.VITE_API_URL + "/login", user, {
+        headers: {
+        'Content-Type': 'application/json'
+        }
+    })
+    .then(res => {
+        const jwtToken = res.headers.authorization;
+        if(jwtToken !== null) {
+        sessionStorage.setItem("jwt", jwtToken);
+        setAuth(true);
+        }
+    })
+    .catch(err => {
+        console.log(err)
+    });
+    }
+
+    if(isAuthenticated) {
+    return <Carlist />
+    }
+
+    else {
+    return(
+        <Stack spacing={2} alignItems="center" mt={10} >
+        <TextField 
+            name="username"
+            label="Username"
+            onChange={handleChange}
         />
-    <TextField
-        type="password"
-        name="password"
-        label="Password"
-        value={user.password}
-        onChange={handleChange}
-    />
-    <Button variant="contained" color="primary" onClick={handleLogin}>
-        Login
-    </Button>
-</Stack>
-);
+        <TextField 
+            type="password"
+            name="password"
+            label="Password"
+            onChange={handleChange}
+        />
+        <Button
+            variant="outlined"
+            color="primary"
+            onClick={handleLogin}
+        >
+            Login
+        </Button>
+        <Snackbar 
+            open={open}
+            autoHideDuration={3000}
+            onClose={() => setOpen(false)}
+            message='ID 혹은 비밀번호가 틀렸습니다.'
+        />
+        </Stack>
+    );
+    }
 }
 
-export default Login;
+export default Login
